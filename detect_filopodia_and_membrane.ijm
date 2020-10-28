@@ -55,7 +55,10 @@ setAutoThreshold("Huang dark");
 run("Analyze Particles...", "size=200-Infinity clear include add slice");
 close();
 roiManager("Select", 0);
+Stack.setChannel(PRG2channel);
 cell_surface = getValue("Area");
+mean_intensity = getValue("Mean");
+Stack.setChannel(GFPchannel);
 
 // remove some long thin processes, enlarge by 1 µm
 run("Enlarge...", "enlarge=-1");
@@ -95,6 +98,7 @@ run("Clear Results");
 setResult("Image", 0, imgName);
 setResult("Channel", 0, GFPchannel);
 setResult("Area", 0, cell_surface);
+setResult("MeanIntensity", 0, mean_intensity);
 setResult("Circumference", 0, Length);
 setResult("FiloNumber", 0, Filos); 
 setResult("FiloDensity", 0, dens); 
