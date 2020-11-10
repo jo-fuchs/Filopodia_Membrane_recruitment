@@ -23,9 +23,9 @@
 
 // define channels
 GFPchannel = 1;
-PRG2channel = 4;
-Dapichannel = 3; // if no Dapi imaged, set to 0
-
+PRG2channel = 3;
+Dapichannel = 2; // if no Dapi imaged, set to 0
+minNucArea = 70; // minmal area still considered a valid Nucleus
 
 
 
@@ -133,16 +133,41 @@ roiManager("Select", 0);
 run("Enlarge...", "enlarge=-3");
 	// Secure against unconnected ROIs remove unconnected parts & fill holes
 	run("Create Mask");
-	run("Analyze Particles...", "size=100-Infinity include add");
+	run("Analyze Particles...", "size=70-Infinity include add");
 	run("Close");
 	
-roiManager("Select", 4);
-run("Make Band...", "band=1");
-roiManager("add");
+	if(roiManager("count") < 5) {
+		// try again with smaller minimal cytosol area
+		run("Select None");
+		roiManager("Select", 0);
+		run("Enlarge...", "enlarge=-3");
+		run("Create Mask");
+		run("Analyze Particles...", "size=40-Infinity include add");
+		run("Close");
 
-roiManager("Select", 4);
-roiManager("delete");
+		// if that doesn't help just give up
+		if(roiManager("count") < 5) {
+			// clean up
+			run("Close All");
+			
+			list = getList("window.titles");
+			for (i=0; i<list.length; i++){
+				winame = list[i];
+				selectWindow(winame);
+				run("Close");
+			}
+			 // error message
+	 		 exit("Error:\nCouldn't detect the cytosol properly.\nThe macro currently fails for thin cells"); 
+		 }
+	} 
 
+	roiManager("Select", 4);
+	run("Make Band...", "band=1");
+	roiManager("add");
+	
+	roiManager("Select", 4);
+	roiManager("delete");
+	
 
 if(Dapichannel != 0) {
 	// perinuclear selection
@@ -152,7 +177,7 @@ if(Dapichannel != 0) {
 	Stack.setPosition(Dapichannel, slice, frame)  // Dapi channel
 	run("Median...", "radius=2 slice");
 	setAutoThreshold("Moments dark");
-	run("Analyze Particles...", "size=70-Infinity add include slice");
+	run("Analyze Particles...", "size=" + minNucArea + "-Infinity add include slice");
 	
 	// This fails for multiple nuclei > merge multiple nuclei before
 	n = roiManager("Count");
@@ -168,7 +193,19 @@ if(Dapichannel != 0) {
 		roiManager("select", a);
 		roiManager("delete");
 	}
-	
+	if(roiManager("count")<6) {
+		// clean up
+		run("Close All");
+		
+		list = getList("window.titles");
+		 for (i=0; i<list.length; i++){
+		 winame = list[i];
+		  selectWindow(winame);
+		 run("Close");
+		 }
+		 // error message
+ 		 exit("Error:\nCouldn't detect nucleus.\nConsider setting minNucArea to a smaller value"); 
+	} else {
 	// create band around nuclei
 	roiManager("Select", 5);
 	run("Enlarge...", "enlarge=-1");
@@ -179,6 +216,7 @@ if(Dapichannel != 0) {
 	roiManager("Select", 5);
 	roiManager("delete");
 	close(); // duplicated image
+	}
 }
 
 // Measure all
