@@ -93,17 +93,6 @@ run("Close");
 
 dens = Filos / Length;
 
-// Create Results
-run("Clear Results");
-setResult("Image", 0, imgName);
-setResult("Channel", 0, GFPchannel);
-setResult("Area", 0, cell_surface);
-setResult("MeanIntensity", 0, mean_intensity);
-setResult("Circumference", 0, Length);
-setResult("FiloNumber", 0, Filos); 
-setResult("FiloDensity", 0, dens); 
-
-saveAs("Results", dirimg + imgName + "_" + rName + "_Filopodia.csv");
 
 
 // PM-localization
@@ -161,6 +150,7 @@ run("Enlarge...", "enlarge=-3");
 		 }
 	} 
 
+	selectWindow(imgName);
 	roiManager("Select", 4);
 	run("Make Band...", "band=1");
 	roiManager("add");
@@ -249,6 +239,20 @@ roiManager("delete");
 roiManager("Deselect");
 roiManager("Save", dirimg + imgName + "_" + rName +"_ROIs.zip");
 saveAs("Results", dirimg + imgName + "_" + rName + "_PMrecruitment.csv");
+
+
+// Create Results for Filopodia analysis
+// moved here in case analysis breaks before
+run("Clear Results");
+setResult("Image", 0, imgName);
+setResult("Channel", 0, GFPchannel);
+setResult("Area", 0, cell_surface);
+setResult("MeanIntensity", 0, mean_intensity);
+setResult("Circumference", 0, Length);
+setResult("FiloNumber", 0, Filos); 
+setResult("FiloDensity", 0, dens); 
+
+saveAs("Results", dirimg + imgName + "_" + rName + "_Filopodia.csv");
 
 
 // clean up
