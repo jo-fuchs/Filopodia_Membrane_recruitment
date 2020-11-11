@@ -218,6 +218,7 @@ if(Dapichannel != 0) {
 }
 
 // Measure all
+run("Clear Results");
 roiManager("Select", 3);
 roiManager( "Rename", "Membrane" )
 Stack.setPosition(GFPchannel, slice, frame)
