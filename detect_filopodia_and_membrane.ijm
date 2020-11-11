@@ -16,7 +16,12 @@
 //    Intensities saved as Image_ROIname_PMrecruitment.csv
 //	  Filopodia density saved as Image_ROIname_Filopodia.csv
 //
-// v0.1 26.10.2020 Joachim Fuchs
+//
+// Some unsolved problems
+//	  Thin cells are not analysed properly (there is an error message now, just skip the cell in that case)
+//    Every now and then the macro runs into an error ("Unable to make band"). Close Results & ROI-manager and just try the same cell again, usually it works. 
+//
+// v0.2 11.11.2020 Joachim Fuchs
 //
 
 
@@ -24,7 +29,7 @@
 // define channels
 GFPchannel = 1;
 PRG2channel = 3;
-Dapichannel = 2; // if no Dapi imaged, set to 0
+Dapichannel = 0; // if no Dapi imaged, set to 0
 minNucArea = 70; // minmal area still considered a valid Nucleus
 
 
@@ -44,6 +49,9 @@ roiManager("deselect");
 
 
 // refine cell ROI
+if(roiManager("count") < 1) {
+	exit("No ROI found. Did you forget to store the selection in the ROI manager?");
+}
 run("Duplicate...", "duplicate");
 roiManager("Select", 0);
 rName = Roi.getName;
@@ -63,9 +71,9 @@ Stack.setChannel(GFPchannel);
 // remove some long thin processes, enlarge by 1 µm
 run("Enlarge...", "enlarge=-1");
 run("Enlarge...", "enlarge=2");
-	// remove unconnected parts & fill holes
+	// remove unconnected parts & fill holes (only remove unconnected parts that are smaller than 25% of total area)
 	run("Create Mask");
-	run("Analyze Particles...", "size=200-Infinity include add");
+	run("Analyze Particles...", "size=" + cell_surface/4 + "-Infinity include add");
 	run("Close");
 	roiManager("Select", 1);
 
@@ -237,6 +245,9 @@ if(Dapichannel != 0) {
 roiManager("select", 1);
 roiManager("delete");
 roiManager("Deselect");
+
+waitForUser("Do the ROIs look good? To save click OK");
+
 roiManager("Save", dirimg + imgName + "_" + rName +"_ROIs.zip");
 saveAs("Results", dirimg + imgName + "_" + rName + "_PMrecruitment.csv");
 
