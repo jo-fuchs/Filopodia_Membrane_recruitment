@@ -27,9 +27,9 @@
 
 
 // define channels
-GFPchannel = 1;
-PRG2channel = 3;
-Dapichannel = 0; // if no Dapi imaged, set to 0
+GFPchannel = 2;
+PRG2channel = 1;
+Dapichannel = 3; // if no Dapi imaged, set to 0
 minNucArea = 70; // minmal area still considered a valid Nucleus
 
 
@@ -116,6 +116,7 @@ roiManager("deselect");
 
 
 // Plasma membrane Selection
+selectWindow(imgName);
 roiManager("Select", 0);
 Stack.setPosition(GFPchannel, slice, frame);
 run("Enlarge...", "enlarge=-1.2");
@@ -125,6 +126,7 @@ roiManager("Deselect");
 
 
 // Intracellular selection
+selectWindow(imgName);
 run("Select None");
 roiManager("Select", 0);
 run("Enlarge...", "enlarge=-3");
@@ -169,6 +171,7 @@ run("Enlarge...", "enlarge=-3");
 
 if(Dapichannel != 0) {
 	// perinuclear selection
+	selectWindow(imgName);
 	run("Select None");
 	run("Duplicate...", "duplicate");
 	roiManager("Select", 0);
@@ -221,6 +224,7 @@ if(Dapichannel != 0) {
 run("Clear Results");
 roiManager("Select", 3);
 roiManager( "Rename", "Membrane" )
+Roi.setStrokeColor("green");
 Stack.setPosition(GFPchannel, slice, frame)
 run("Measure");
 Stack.setPosition(PRG2channel, slice, frame)
@@ -228,6 +232,7 @@ run("Measure");
 
 roiManager("Select", 4);
 roiManager( "Rename", "Intracellular" )
+Roi.setStrokeColor("red");
 Stack.setPosition(GFPchannel, slice, frame)
 run("Measure");
 Stack.setPosition(PRG2channel, slice, frame)
@@ -236,6 +241,7 @@ run("Measure");
 if(Dapichannel != 0) {
 	roiManager("Select", 5);
 	roiManager( "Rename", "Perinuclear" )
+	Roi.setStrokeColor("blue");
 	Stack.setPosition(GFPchannel, slice, frame)
 	run("Measure");
 	Stack.setPosition(PRG2channel, slice, frame)
